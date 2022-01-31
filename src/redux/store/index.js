@@ -7,6 +7,7 @@ import bookReducer from '../reducers/bookReducer'
 
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import { encryptTransform } from 'redux-persist-transform-encrypt'
 
 // this is the compose function the devTools team came up with
 // window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
@@ -40,6 +41,15 @@ const bigReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage,
+  transforms: [
+    encryptTransform({
+      secretKey: process.env.REACT_APP_SECRET_KEY, // this is mandatory
+      onError: (error) => {
+        // this is optional
+        console.log('encryption error', Error)
+      },
+    }),
+  ],
 }
 
 const persistedReducer = persistReducer(persistConfig, bigReducer)
