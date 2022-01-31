@@ -5,6 +5,9 @@ import userReducer from '../reducers/userReducer'
 import thunk from 'redux-thunk' // <-- this must be used with applyMiddleware
 import bookReducer from '../reducers/bookReducer'
 
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
+
 // this is the compose function the devTools team came up with
 // window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
 // if you use the above one, you can mantain the devTools enabled and you can apply the redux-thunk middleware
@@ -34,8 +37,15 @@ const bigReducer = combineReducers({
   book: bookReducer,
 })
 
-let configureStore = createStore(
-  bigReducer,
+const persistConfig = {
+  key: 'root',
+  storage,
+}
+
+const persistedReducer = persistReducer(persistConfig, bigReducer)
+
+export let configureStore = createStore(
+  persistedReducer,
   initialState,
   // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
   composeThatAlwaysWorks(applyMiddleware(thunk))
@@ -44,7 +54,7 @@ let configureStore = createStore(
 // 2) the initial state
 // 3) the enhancer function
 
-export default configureStore
+export const persistor = persistStore(configureStore)
 
 // redux-thunk is an external plugin that will allow us to inject async logic
 // into the redux flow, so e.g. we can save into the redux store the result
